@@ -1,0 +1,31 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to Railway
+        if: always()
+        run: |
+          npm install -g @railway/cli
+          railway up --service license-server
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        continue-on-error: true
+      
+      - name: Notify on success
+        if: success()
+        run: echo "✅ Deployment successful!"
+      
+      - name: Notify on failure  
+        if: failure()
+        run: echo "❌ Deployment failed - check logs"

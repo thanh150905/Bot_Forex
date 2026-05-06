@@ -1,0 +1,1158 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quản trị Forex Bot</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">FX</div>
+        <div>
+          <div class="brand-name">Forex Bot</div>
+          <div class="brand-subtitle">Bảng quản trị</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="overview">Tổng quan</button>
+        <button class="nav-item" data-view="ops">Vận hành live</button>
+        <button class="nav-item" data-view="activity">Hoạt động</button>
+        <button class="nav-item" data-view="analytics">Phân tích</button>
+        <button class="nav-item" data-view="strategy">Rủi ro chiến lược</button>
+        <button class="nav-item" data-view="control">Điều khiển</button>
+        <button class="nav-item" data-view="readiness">Sẵn sàng live</button>
+        <button class="nav-item" data-view="bots">Bots</button>
+        <button class="nav-item" data-view="mt5-accounts">Tài khoản MT5</button>
+        <button class="nav-item" data-view="ai-bot">AI Bot</button>
+        <button class="nav-item" data-view="users">Người dùng</button>
+        <button class="nav-item" data-view="licenses">License</button>
+        <button class="nav-item" data-view="sessions">Phiên bot</button>
+        <button class="nav-item" data-view="trades">Lệnh</button>
+        <button class="nav-item" data-view="tools">Công cụ</button>
+      </nav>
+
+      <div class="server-card">
+        <span class="status-dot"></span>
+        <div>
+          <div class="muted">Máy chủ</div>
+          <div id="serverStatus">Đang kiểm tra</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Tổng quan</h1>
+          <p id="pageSubtitle">Theo dõi license, IP lock, hoạt động bot và giao dịch.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="button ghost notification-button hidden" id="notificationJumpBtn" type="button">
+            Thông báo
+            <span class="notification-badge" id="notificationBadge">0</span>
+          </button>
+          <button class="button ghost" id="soundToggleBtn">Tắt âm</button>
+          <button class="button ghost" id="desktopNotifyBtn">Thông báo desktop</button>
+          <button class="button ghost" id="refreshBtn">Làm mới</button>
+          <button class="button danger hidden" id="logoutBtn">Đăng xuất</button>
+        </div>
+      </header>
+
+      <div class="live-alert-strip hidden" id="liveAlertStrip">
+        <span class="live-alert-dot" id="liveAlertDot"></span>
+        <div class="live-alert-copy">
+          <strong id="liveAlertTitle">Chưa có cảnh báo mới</strong>
+          <span id="liveAlertMessage">Các thông báo vào lệnh, đóng lệnh và cảnh báo bot sẽ hiển thị tại đây.</span>
+        </div>
+        <time id="liveAlertTime">-</time>
+      </div>
+
+      <section class="login-panel" id="loginPanel">
+        <form class="login-box" id="loginForm">
+          <div>
+            <h2>Đăng nhập admin</h2>
+            <p>Đăng nhập để quản lý license và phiên bot.</p>
+          </div>
+          <label>
+            Tên đăng nhập
+            <input name="username" value="admin" autocomplete="username">
+          </label>
+          <label>
+            Mật khẩu
+            <input name="password" type="password" autocomplete="current-password">
+          </label>
+          <button class="button primary" type="submit">Đăng nhập</button>
+          <div class="form-message" id="loginMessage"></div>
+        </form>
+      </section>
+
+      <section class="content hidden" id="content">
+        <section class="view" id="view-overview">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Người dùng</span>
+              <strong id="totalUsers">0</strong>
+              <span id="activeUsers">0 đang hoạt động</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">License</span>
+              <strong id="totalLicenses">0</strong>
+              <span id="activeLicenses">0 đang hoạt động</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Bot online</span>
+              <strong id="onlineBots">0</strong>
+              <span id="totalBots">0 tổng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh đang mở</span>
+              <strong id="openTrades">0</strong>
+              <span id="totalTrades">0 tổng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">P/L đã đóng</span>
+              <strong id="closedProfit">$0.00</strong>
+              <span id="closedTrades">0 đã đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">P/L hôm nay</span>
+              <strong id="todayProfit">$0.00</strong>
+              <span>theo ngày máy chủ</span>
+            </div>
+          </div>
+
+          <section class="panel notifications-panel">
+            <div class="panel-header">
+              <h2>Log lệnh và bot live</h2>
+              <span class="badge">Tự làm mới</span>
+            </div>
+            <div class="notification-list" id="notificationList">
+              <div class="empty-state compact">Chưa có thông báo</div>
+            </div>
+          </section>
+
+          <div class="split-layout">
+            <section class="panel hidden">
+              <div class="panel-header">
+                <h2>Tạo người dùng</h2>
+              </div>
+              <form class="form-grid" id="createUserForm">
+                <label>Tên đăng nhập<input name="username" required></label>
+                <label>Email<input name="email" type="email" required></label>
+                <label class="wide">Ghi chú<input name="note"></label>
+                <button class="button primary" type="submit">Tạo người dùng</button>
+              </form>
+              <div class="form-message" id="userMessage"></div>
+            </section>
+
+            <section class="panel hidden">
+              <div class="panel-header">
+                <h2>Tạo license</h2>
+              </div>
+              <form class="form-grid" id="createLicenseForm">
+                <label>ID người dùng<input name="user_id" type="number" min="1" required></label>
+                <label>IP được phép<input name="allowed_ip" placeholder="để trống = tự lock"></label>
+                <label>MT Account<input name="mt_account"></label>
+                <button class="button primary" type="submit">Tạo license</button>
+              </form>
+              <div class="form-message" id="licenseMessage"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-ops">
+          <div class="ops-grid">
+            <section class="ops-hero panel">
+              <div>
+                <span class="stat-label">Vận hành live</span>
+                <h2 id="opsState">Đang chờ dữ liệu</h2>
+                <p id="opsTimestamp">-</p>
+              </div>
+              <div class="ops-pulse" id="opsPulse"></div>
+            </section>
+            <div class="stat-card">
+              <span class="stat-label">Bot online</span>
+              <strong id="opsOnlineBots">0</strong>
+              <span id="opsTotalBots">0 tổng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh đang mở</span>
+              <strong id="opsOpenTrades">0</strong>
+              <span id="opsStaleTrades">0 treo lâu</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">P/L đã đóng hôm nay</span>
+              <strong id="opsTodayProfit">$0.00</strong>
+              <span id="opsTodayClosed">0 đã đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Từ chối hôm nay</span>
+              <strong id="opsRejects">0</strong>
+              <span>từ chối license/IP</span>
+            </div>
+          </div>
+
+          <div class="ticker panel">
+            <div class="ticker-label">Mới nhất</div>
+            <div class="ticker-track" id="opsTicker">Chưa có sự kiện gần đây</div>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Lý do bot chưa vào lệnh</h2>
+              <span id="opsRuntimeStatusCount" class="badge">0</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>License</th>
+                    <th>Symbol</th>
+                    <th>Tín hiệu</th>
+                    <th>Lý do realtime</th>
+                    <th>Spread</th>
+                    <th>Positions</th>
+                    <th>Cập nhật</th>
+                  </tr>
+                </thead>
+                <tbody id="opsRuntimeStatusTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Exposure đang mở</h2>
+                <span id="opsSymbolCount" class="badge">0</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã giao dịch</th>
+                      <th>Đang mở</th>
+                      <th>BUY</th>
+                      <th>SELL</th>
+                      <th>Tổng lot</th>
+                    </tr>
+                  </thead>
+                  <tbody id="opsSymbolsTable"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Lệnh vừa đóng</h2>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã lệnh</th>
+                      <th>Mã giao dịch</th>
+                      <th>Chiều</th>
+                      <th>P/L</th>
+                      <th>Đã đóng</th>
+                    </tr>
+                  </thead>
+                  <tbody id="opsRecentClosedTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Theo dõi lệnh đang mở</h2>
+              <span id="opsOpenCount" class="badge">0</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã lệnh</th>
+                    <th>License</th>
+                    <th>Mã giao dịch</th>
+                    <th>Chiều</th>
+                    <th>Lot</th>
+                    <th>Giá vào</th>
+                    <th>Mở lúc</th>
+                    <th>Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody id="opsOpenTradesTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-activity">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Log hoạt động</h2>
+              <span id="activityCount" class="badge">0</span>
+            </div>
+            <div class="activity-feed" id="activityFeed">
+              <div class="empty-state compact">Chưa có hoạt động</div>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-analytics">
+          <div class="stats-grid analytics-stats">
+            <div class="stat-card">
+              <span class="stat-label">Tỷ lệ thắng</span>
+              <strong id="winRate">0%</strong>
+              <span id="winRateDetail">0 thắng / 0 đã đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Profit Factor</span>
+              <strong id="profitFactor">0.00</strong>
+              <span>lệnh đã đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">P/L trung bình</span>
+              <strong id="avgClosedProfit">$0.00</strong>
+              <span>mỗi lệnh đã đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh tốt nhất</span>
+              <strong id="bestTrade">$0.00</strong>
+              <span id="bestTradeTicket">-</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh xấu nhất</span>
+              <strong id="worstTrade">$0.00</strong>
+              <span id="worstTradeTicket">-</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Mã giao dịch</span>
+              <strong id="symbolCount">0</strong>
+              <span>đã được báo cáo</span>
+            </div>
+          </div>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Hiệu suất theo mã</h2>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mã giao dịch</th>
+                      <th>Số lệnh</th>
+                      <th>Đang mở</th>
+                      <th>Đã đóng</th>
+                      <th>Tỷ lệ thắng</th>
+                      <th>P/L</th>
+                    </tr>
+                  </thead>
+                  <tbody id="symbolAnalyticsTable"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Hiệu suất BUY/SELL</h2>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Chiều</th>
+                      <th>Số lệnh</th>
+                      <th>Đã đóng</th>
+                      <th>Tỷ lệ thắng</th>
+                      <th>P/L</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sideAnalyticsTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-strategy">
+          <div class="strategy-hero panel">
+            <div>
+              <span class="stat-label">Chẩn đoán giao dịch live</span>
+              <h2>Rủi ro chiến lược đang là nút thắt chính</h2>
+              <p>Máy chủ, bảng quản trị, license và hàng đợi lệnh đã đủ dùng; phần dễ vỡ là scalp nhiều lệnh với chi phí cao khi edge chưa được chứng minh.</p>
+            </div>
+            <div class="risk-meter">
+              <span>Rủi ro cấu hình hiện tại</span>
+              <strong>CAO</strong>
+            </div>
+          </div>
+
+          <div class="strategy-grid">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Bản đồ hệ thống</h2>
+                <span class="badge">Mức sẵn sàng</span>
+              </div>
+              <div class="system-map">
+                <article class="map-card ok">
+                  <strong>Ổn định</strong>
+                  <p>License server, IP lock, dashboard admin, log live, command queue và trade reporting đã có.</p>
+                </article>
+                <article class="map-card warn">
+                  <strong>Rủi ro</strong>
+                  <p>Scalp BTC, nhiều lệnh mỗi tín hiệu, force hedge và tắt news filter có thể tạo kỳ vọng âm rất nhanh.</p>
+                </article>
+                <article class="map-card bad">
+                  <strong>Còn thiếu</strong>
+                  <p>Backtest tick thật, confidence đã hiệu chuẩn, xác nhận regime và thoát lệnh theo cấu trúc chưa được chứng minh.</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Cấu hình nên ưu tiên</h2>
+                <span class="badge">Giảm rủi ro</span>
+              </div>
+              <div class="config-block">
+                <code>$SYMBOL_MODE = "XAU"</code>
+                <code>$env:ORDERS_PER_SIGNAL = "1"</code>
+                <code>$env:FORCE_BOTH_SIDES = "false"</code>
+                <code>$env:FORCE_ALTERNATE_SIDES = "false"</code>
+                <code>$env:NEWS_FILTER_ENABLED = "true"</code>
+                <code>$env:DRY_RUN = "true"</code>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Ma trận ưu tiên</h2>
+            </div>
+            <div class="priority-matrix">
+              <article>
+                <span class="priority-label now">Làm ngay</span>
+                <strong>Giảm thiệt hại do execution</strong>
+                <p>Ưu tiên XAU, một lệnh mỗi tín hiệu, bật news filter, theo dõi dry run/demo.</p>
+              </article>
+              <article>
+                <span class="priority-label next">Làm tiếp</span>
+                <strong>Đo edge thực tế</strong>
+                <p>Thu thập log live/demo, so sánh theo phiên, spread, symbol và điểm tín hiệu.</p>
+              </article>
+              <article>
+                <span class="priority-label later">Làm sau</span>
+                <strong>Nâng engine chiến lược</strong>
+                <p>Hiệu chuẩn confidence, thêm regime detection tốt hơn và SL/TP theo cấu trúc.</p>
+              </article>
+              <article>
+                <span class="priority-label avoid">Tránh</span>
+                <strong>Nhân lệnh khi chưa chứng minh edge</strong>
+                <p>Không tăng batch size hoặc force hedge khi profit factor sau chi phí chưa được chứng minh.</p>
+              </article>
+            </div>
+          </section>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Máy tính kỳ vọng P&L</h2>
+                <span class="badge">Theo tín hiệu</span>
+              </div>
+              <form class="form-grid compact-form" id="pnlCalculator">
+                <label>Số lệnh mỗi tín hiệu<input class="strategy-input" id="calcOrders" type="number" min="1" step="1" value="5"></label>
+                <label>Chi phí spread/slippage mỗi lệnh ($)<input class="strategy-input" id="calcCost" type="number" min="0" step="0.01" value="1.20"></label>
+                <label>Tỷ lệ thắng (%)<input class="strategy-input" id="calcWinRate" type="number" min="1" max="99" step="0.1" value="55"></label>
+                <label>Lãi trung bình mỗi lệnh ($)<input class="strategy-input" id="calcAvgWin" type="number" min="0" step="0.01" value="2.00"></label>
+                <label>Lỗ trung bình mỗi lệnh ($)<input class="strategy-input" id="calcAvgLoss" type="number" min="0" step="0.01" value="2.50"></label>
+                <label>Số tín hiệu mỗi ngày<input class="strategy-input" id="calcSignals" type="number" min="1" step="1" value="20"></label>
+              </form>
+              <div class="pnl-results">
+                <div>
+                  <span>Chi phí mỗi tín hiệu</span>
+                  <strong id="calcCostSignal">$0.00</strong>
+                </div>
+                <div>
+                  <span>Kỳ vọng ròng/tín hiệu</span>
+                  <strong id="calcNetSignal">$0.00</strong>
+                </div>
+                <div>
+                  <span>EV dự kiến mỗi ngày</span>
+                  <strong id="calcDailyEv">$0.00</strong>
+                </div>
+                <div>
+                  <span>Tỷ lệ thắng hòa vốn</span>
+                  <strong id="calcBreakeven">0%</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Cảnh báo cấu hình hiện tại</h2>
+              </div>
+              <div class="risk-flags">
+                <article class="bad"><strong>Chế độ BTC</strong><span>Spread và slippage nhạy với scalp M1.</span></article>
+                <article class="bad"><strong>5 lệnh/tín hiệu</strong><span>Một tín hiệu yếu có thể biến thành cả basket ngay lập tức.</span></article>
+                <article class="warn"><strong>Force hedge</strong><span>BUY và SELL cùng lúc là nhân exposure, không phải diversification thật.</span></article>
+                <article class="warn"><strong>News filter tắt</strong><span>Biến động mạnh có thể đánh vào basket trước khi bot phản ứng.</span></article>
+                <article class="ok"><strong>Command queue</strong><span>Web có thể pause/resume và đóng lệnh sau khi bot đã restart.</span></article>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-control">
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Điều khiển bot</h2>
+                <span class="badge">Lệnh live</span>
+              </div>
+              <div class="command-actions">
+                <button class="button danger" type="button" data-quick-command="pause">Tạm dừng tất cả</button>
+                <button class="button primary" type="button" data-quick-command="resume">Chạy lại tất cả</button>
+                <button class="button danger" type="button" data-quick-command="close_all">Đóng tất cả</button>
+                <button class="button ghost" type="button" data-quick-command="close_symbol" data-symbol="XAUUSDm">Đóng XAU</button>
+                <button class="button ghost" type="button" data-quick-command="close_symbol" data-symbol="BTCUSDm">Đóng BTC</button>
+                <button class="button ghost" type="button" data-quick-command="close_symbol" data-symbol="ETHUSDm">Đóng ETH</button>
+              </div>
+              <form class="form-grid" id="commandForm">
+                <label>License mục tiêu
+                  <input name="target_license_key" placeholder="để trống = tất cả license active">
+                </label>
+                <label>Hành động
+                  <select name="action" id="commandAction">
+                    <option value="pause">pause</option>
+                    <option value="resume">resume</option>
+                    <option value="close_all">close_all</option>
+                    <option value="close_symbol">close_symbol</option>
+                    <option value="set_config">set_config</option>
+                  </select>
+                </label>
+                <label>Mã giao dịch
+                  <input name="symbol" placeholder="XAUUSDm / BTCUSDm / ETHUSDm">
+                </label>
+                <label>Lý do
+                  <input name="reason" placeholder="lý do gửi lệnh điều khiển">
+                </label>
+                <label class="wide">Dữ liệu JSON
+                  <textarea id="commandPayload" name="payload" spellcheck="false">{
+  "lot_size": 0.01,
+  "max_positions_per_symbol": 10,
+  "orders_per_signal": 5,
+  "winner_min_profit_money": 2,
+  "basket_min_net_profit_money": 10
+}</textarea>
+                </label>
+                <button class="button primary" type="submit">Gửi lệnh</button>
+              </form>
+              <div class="form-message" id="commandMessage"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Quyền vận hành</h2>
+              </div>
+              <div class="key-list">
+                <span>User tự thêm MT5</span>
+                <span>User tự Run</span>
+                <span>User tự Stop</span>
+                <span>User tự Restart</span>
+                <span>Admin xem thống kê</span>
+                <span>Admin xem log</span>
+                <span>Admin xóa dữ liệu</span>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Lịch sử lệnh điều khiển</h2>
+              <span id="commandsCount" class="badge">0</span>
+            </div>
+            <div class="toolbar">
+              <input id="commandsFilter" placeholder="Lọc theo license, hành động, trạng thái, kết quả">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Mục tiêu</th>
+                    <th>Hành động</th>
+                    <th>Mã giao dịch</th>
+                    <th>Trạng thái</th>
+                    <th>Lý do</th>
+                    <th>Kết quả</th>
+                    <th>Tạo lúc</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="commandsTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-readiness">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Người dùng active</span>
+              <strong id="readyActiveUsers">0</strong>
+              <span>tài khoản</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">License active</span>
+              <strong id="readyActiveLicenses">0</strong>
+              <span>có thể kết nối</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh đang mở</span>
+              <strong id="readyOpenTrades">0</strong>
+              <span>đã báo cáo</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Từ chối 24h</span>
+              <strong id="readyRejects">0</strong>
+              <span>sự kiện bảo mật</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh đang chờ</span>
+              <strong id="readyPendingCommands">0</strong>
+              <span>chờ bot nhận</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Dung lượng DB</span>
+              <strong id="readyDbSize">0 KB</strong>
+              <span>sqlite</span>
+            </div>
+          </div>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Checklist sẵn sàng</h2>
+              </div>
+              <div class="readiness-list" id="readinessList"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Thông tin máy chủ</h2>
+              </div>
+              <div class="server-info" id="serverInfo"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-bots">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Bot giao dịch</h2>
+              <span id="botsCount" class="badge">0</span>
+            </div>
+            <div class="toolbar">
+              <input id="botsFilter" placeholder="Lọc bot theo user, license, IP, trạng thái">
+              <button class="button ghost" id="copyOnlineBotsBtn" type="button">Sao chép license online</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trạng thái</th>
+                    <th>Người dùng</th>
+                    <th>License</th>
+                    <th>IP được phép</th>
+                    <th>MT Account</th>
+                    <th>Lần thấy cuối</th>
+                    <th>Số lần xác thực</th>
+                  </tr>
+                </thead>
+                <tbody id="botsTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-ai-bot">
+          <div class="split-layout ai-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>AI Bot trên web</h2>
+                <span class="badge">Chế độ paper</span>
+              </div>
+              <form class="form-grid" id="aiBotForm">
+                <label>Mã giao dịch<input name="symbol" value="EURUSD" required></label>
+                <label>Khung thời gian<input name="timeframe" value="M1" required></label>
+                <label>Chiến lược
+                  <select name="strategy">
+                    <option value="scalping">Scalping</option>
+                    <option value="trend">Xu hướng</option>
+                  </select>
+                </label>
+                <label>Demo thị trường
+                  <select name="scenario">
+                    <option value="up">Xu hướng tăng</option>
+                    <option value="down">Xu hướng giảm</option>
+                    <option value="range">Đi ngang</option>
+                  </select>
+                </label>
+                <label>Khối lượng lot<input name="lot_size" type="number" value="0.01" min="0.01" step="0.01"></label>
+                <button class="button ghost" type="button" id="generateCandlesBtn">Tạo nến demo</button>
+                <button class="button primary" type="submit">Phân tích xu hướng</button>
+              </form>
+              <div class="textarea-wrap">
+                <label>Nến OHLC dạng JSON
+                  <textarea id="candlesInput" spellcheck="false"></textarea>
+                </label>
+              </div>
+              <div class="form-message" id="aiBotMessage"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Kết quả tín hiệu</h2>
+                <button class="button primary" id="paperTradeBtn" disabled>Tạo lệnh paper</button>
+              </div>
+              <div class="signal-card" id="signalCard">
+                <div class="empty-state">Chưa có tín hiệu</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-users">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Người dùng</h2>
+              <span id="usersCount" class="badge">0</span>
+            </div>
+            <div class="toolbar">
+              <input id="usersFilter" placeholder="Lọc người dùng theo tên, email, ghi chú">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên đăng nhập</th>
+                    <th>Email</th>
+                    <th>Nguồn</th>
+                    <th>License / MT5</th>
+                    <th>Trạng thái</th>
+                    <th>Hết hạn</th>
+                    <th>Hoạt động cuối</th>
+                    <th>Ngày tạo</th>
+                    <th>Ghi chú</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-licenses">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>License</h2>
+              <span id="licensesCount" class="badge">0</span>
+            </div>
+            <div class="toolbar">
+              <input id="licensesFilter" placeholder="Lọc license theo key, user, IP, MT account">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Khóa</th>
+                    <th>Người dùng</th>
+                    <th>IP được phép</th>
+                    <th>MT Account</th>
+                    <th>Trạng thái</th>
+                    <th>Hết hạn</th>
+                    <th>Xác thực</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="licensesTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-mt5-accounts">
+          <div class="split-layout mt5-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2 id="mt5AccountFormTitle">Thêm tài khoản MT5</h2>
+                <span class="badge">Host trên VPS</span>
+              </div>
+              <form class="form-grid" id="mt5AccountForm">
+                <label>Người dùng
+                  <select name="user_id" id="mt5UserSelect" required></select>
+                </label>
+                <label>License
+                  <select name="license_key" id="mt5LicenseSelect"></select>
+                </label>
+                <label>Tên hiển thị
+                  <input name="label" placeholder="VD: Khách A - Exness demo">
+                </label>
+                <label>Broker
+                  <input name="broker" placeholder="VD: Exness">
+                </label>
+                <label>MT5 login
+                  <input name="mt_login" required inputmode="numeric">
+                </label>
+                <label>MT5 server
+                  <input name="mt_server" required placeholder="VD: Exness-MT5Trial14">
+                </label>
+                <label class="wide">Mật khẩu MT5
+                  <input name="mt_password" type="password" autocomplete="new-password" placeholder="Bỏ trống khi sửa nếu không đổi">
+                </label>
+                <label>Chế độ symbol
+                  <select name="symbol_mode" id="mt5SymbolMode">
+                    <option value="XAU">XAU</option>
+                    <option value="ETH">ETH</option>
+                    <option value="BTC">BTC</option>
+                    <option value="CRYPTO">CRYPTO</option>
+                    <option value="ALL">ALL</option>
+                    <option value="CUSTOM">CUSTOM</option>
+                  </select>
+                </label>
+                <label>Symbols
+                  <input name="symbols" placeholder="Để trống để dùng preset">
+                </label>
+                <label>Lot
+                  <input name="lot_size" type="number" step="0.01" min="0.01" value="0.01" required>
+                </label>
+                <label>Max spread points
+                  <input name="max_spread_points" type="number" min="1" value="350" required>
+                </label>
+                <label>Max lệnh / symbol
+                  <input name="max_positions" type="number" min="1" value="10" required>
+                </label>
+                <label>Max tổng lệnh
+                  <input name="max_total_positions" type="number" min="1" value="10" required>
+                </label>
+                <label>Chế độ chạy
+                  <select name="dry_run">
+                    <option value="true">Dry run</option>
+                    <option value="false">Live thật</option>
+                  </select>
+                </label>
+                <label>Trạng thái
+                  <select name="is_active">
+                    <option value="false">Tạm dừng</option>
+                    <option value="true">Bật runner</option>
+                  </select>
+                </label>
+                <label class="wide">Ghi chú
+                  <input name="note" placeholder="Ghi chú nội bộ cho admin">
+                </label>
+                <div class="form-actions wide">
+                  <button class="button primary" id="mt5AccountSubmitBtn" type="submit">Thêm tài khoản</button>
+                  <button class="button ghost" id="resetMt5AccountFormBtn" type="button">Hủy sửa</button>
+                </div>
+              </form>
+              <div class="form-message" id="mt5AccountMessage"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Vai trò admin</h2>
+              </div>
+              <div class="server-info">
+                <div><span>1</span><strong>User tự thêm tài khoản MT5 trong cổng khách hàng.</strong></div>
+                <div><span>2</span><strong>Account user tự thêm sẽ do user Run, Stop hoặc Restart.</strong></div>
+                <div><span>3</span><strong>Account admin thêm trong trang này mới được admin Run.</strong></div>
+                <div><span>4</span><strong>Admin vẫn xem thống kê và xóa cả hai loại account.</strong></div>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Danh sách tài khoản MT5</h2>
+              <span id="mt5AccountsCount" class="badge">0</span>
+            </div>
+            <div class="toolbar trade-toolbar">
+              <input id="mt5AccountsFilter" placeholder="Lọc theo user, login, server, broker, license, symbol">
+              <button class="button ghost" id="exportMt5AccountsBtn" type="button">Xuất CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Trạng thái</th>
+                    <th>Người dùng</th>
+                    <th>License</th>
+                    <th>MT5</th>
+                    <th>Symbol</th>
+                    <th>Risk</th>
+                    <th>Cập nhật</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="mt5AccountsTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel hidden account-performance" id="mt5TradeStatsPanel">
+            <div class="account-performance-hero">
+              <div>
+                <div class="account-title-line">
+                  <span id="mt5TradeStatsStatus" class="pill">-</span>
+                  <h2 id="mt5TradeStatsTitle">Thống kê tài khoản</h2>
+                </div>
+                <p id="mt5TradeStatsSubtitle" class="muted">Chọn một tài khoản MT5 để xem chi tiết lệnh.</p>
+                <div id="mt5StatsMeta" class="account-meta"></div>
+              </div>
+              <div class="range-tabs" id="mt5StatsRangeTabs">
+                <button class="small-button active" type="button" data-mt5-stats-days="0">Tất cả</button>
+                <button class="small-button" type="button" data-mt5-stats-days="1">Hôm nay</button>
+                <button class="small-button" type="button" data-mt5-stats-days="7">7 ngày</button>
+                <button class="small-button" type="button" data-mt5-stats-days="30">30 ngày</button>
+              </div>
+            </div>
+
+            <div class="performance-summary">
+              <div class="win-rate-block">
+                <div class="win-ring" id="mt5WinRing"><span id="mt5StatsWinRate">0%</span></div>
+                <div>
+                  <span class="stat-label">Win rate</span>
+                  <strong id="mt5StatsClosedProfit">$0.00</strong>
+                  <p id="mt5StatsWinRateDetail">0 thắng / 0 đóng</p>
+                </div>
+              </div>
+              <div class="performance-metrics">
+                <div class="metric-tile">
+                  <span>Lệnh</span>
+                  <strong id="mt5StatsTradeCount">0</strong>
+                  <small id="mt5StatsOpenClosed">0 mở / 0 đóng</small>
+                </div>
+                <div class="metric-tile">
+                  <span>Profit factor</span>
+                  <strong id="mt5StatsProfitFactor">-</strong>
+                  <small id="mt5StatsAvgProfit">Avg $0.00</small>
+                </div>
+                <div class="metric-tile">
+                  <span>Gross P/L</span>
+                  <strong id="mt5StatsGrossProfit">$0.00</strong>
+                  <small id="mt5StatsGrossLoss">Loss $0.00</small>
+                </div>
+                <div class="metric-tile">
+                  <span>Lot đang mở</span>
+                  <strong id="mt5StatsOpenLot">0.00</strong>
+                  <small id="mt5StatsTotalLot">Tổng 0.00 lot</small>
+                </div>
+                <div class="metric-tile">
+                  <span>Pips đã đóng</span>
+                  <strong id="mt5StatsClosedPips">0</strong>
+                  <small id="mt5StatsAvgPips">Avg 0</small>
+                </div>
+                <div class="metric-tile">
+                  <span>Cập nhật cuối</span>
+                  <strong id="mt5StatsLastTrade">-</strong>
+                  <small id="mt5StatsScope">Tất cả</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="account-insights">
+              <section class="insight-block">
+                <div class="insight-header">
+                  <h3>Symbol performance</h3>
+                  <span id="mt5TradeStatsBadge" class="badge">0 lệnh</span>
+                </div>
+                <div id="mt5SymbolStatsList" class="bar-list"></div>
+              </section>
+              <section class="insight-block">
+                <div class="insight-header">
+                  <h3>BUY / SELL</h3>
+                  <span class="badge">Side</span>
+                </div>
+                <div id="mt5DirectionStatsList" class="bar-list"></div>
+              </section>
+              <section class="insight-block">
+                <div class="insight-header">
+                  <h3>Best / Worst</h3>
+                  <span class="badge">Closed</span>
+                </div>
+                <div class="best-worst-grid">
+                  <div>
+                    <span class="stat-label">Lệnh tốt nhất</span>
+                    <strong id="mt5StatsBestTrade">$0.00</strong>
+                    <small id="mt5StatsBestTicket">-</small>
+                  </div>
+                  <div>
+                    <span class="stat-label">Lệnh xấu nhất</span>
+                    <strong id="mt5StatsWorstTrade">$0.00</strong>
+                    <small id="mt5StatsWorstTicket">-</small>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="trade-detail-header">
+              <div>
+                <h3>Chi tiết lệnh</h3>
+                <p id="mt5StatsTradeFilterText" class="muted">Hiển thị tối đa 300 lệnh gần nhất trong phạm vi đã chọn.</p>
+              </div>
+              <div class="trade-detail-filters">
+                <input id="mt5StatsTradeSearch" placeholder="Tìm ticket, symbol, ghi chú">
+                <select id="mt5StatsTradeStatus">
+                  <option value="">Mọi trạng thái</option>
+                  <option value="open">Đang mở</option>
+                  <option value="closed">Đã đóng</option>
+                  <option value="cancelled">Đã hủy</option>
+                </select>
+                <select id="mt5StatsTradeDirection">
+                  <option value="">BUY + SELL</option>
+                  <option value="BUY">BUY</option>
+                  <option value="SELL">SELL</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrap account-trade-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Symbol</th>
+                    <th>Side</th>
+                    <th>Trạng thái</th>
+                    <th>Lot</th>
+                    <th>Entry / Close</th>
+                    <th>Lãi/lỗ</th>
+                    <th>Thời gian</th>
+                    <th>Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody id="mt5TradeStatsTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-sessions">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Phiên bot</h2>
+              <span id="sessionsCount" class="badge">0</span>
+            </div>
+            <div class="toolbar">
+              <input id="sessionsFilter" placeholder="Lọc phiên theo license, IP, hành động, MT account">
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Thời gian</th>
+                    <th>License</th>
+                    <th>IP</th>
+                    <th>Hành động</th>
+                    <th>MT Account</th>
+                    <th>Lý do</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionsTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-trades">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Lệnh giao dịch</h2>
+              <span id="tradesCount" class="badge">0</span>
+            </div>
+            <div class="toolbar trade-toolbar">
+              <input id="tradesFilter" placeholder="Lọc theo ticket, mã giao dịch, license, ghi chú">
+              <select id="tradeStatusFilter">
+                <option value="">Tất cả trạng thái</option>
+                <option value="open">Đang mở</option>
+                <option value="closed">Đã đóng</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
+              <select id="tradeSideFilter">
+                <option value="">Tất cả chiều</option>
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+              <button class="button ghost" id="exportTradesBtn" type="button">Xuất CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã lệnh</th>
+                    <th>License</th>
+                    <th>Mã giao dịch</th>
+                    <th>Chiều</th>
+                    <th>Trạng thái</th>
+                    <th>Giá vào</th>
+                    <th>SL / TP</th>
+                    <th>P/L</th>
+                    <th>Mở lúc</th>
+                    <th>Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody id="tradesTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-tools">
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Công cụ admin</h2>
+              </div>
+              <div class="tool-list">
+                <button class="button primary" id="exportUsersBtn" type="button">Xuất người dùng CSV</button>
+                <button class="button primary" id="exportLicensesBtn" type="button">Xuất license CSV</button>
+                <button class="button primary" id="exportSessionsBtn" type="button">Xuất phiên CSV</button>
+                <button class="button ghost" id="clearSeenBtn" type="button">Reset bộ nhớ thông báo</button>
+                <button class="button ghost" id="healthCheckBtn" type="button">Kiểm tra server</button>
+              </div>
+              <div class="form-message" id="toolsMessage"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Liên kết nhanh</h2>
+              </div>
+              <div class="quick-links">
+                <a href="/docs" target="_blank" rel="noreferrer">Tài liệu API</a>
+                <a href="/health" target="_blank" rel="noreferrer">Endpoint kiểm tra server</a>
+                <a href="/user" target="_blank" rel="noreferrer">Cổng khách hàng</a>
+                <a href="/static/index.html" target="_blank" rel="noreferrer">File dashboard</a>
+              </div>
+            </section>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+  <div class="toast hidden" id="toast"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # License Server (FastAPI)
+  license-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: forex-bot-license-server
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - DATABASE_URL=sqlite+aiosqlite:///./forex_license.db
+      - SECRET_KEY=${SECRET_KEY:-change_this_to_64_char_random_string}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Admin@2024!Strong}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USERNAME=${SMTP_USERNAME:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME:-Forex Bot}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_ADMIN_CHAT_ID=${TELEGRAM_ADMIN_CHAT_ID:-}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+    volumes:
+      - ./license_server:/app
+      - ./license_server/logs:/app/logs
+      - ./license_server/backups:/app/backups
+    restart: unless-stopped
+    networks:
+      - forex-bot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: PostgreSQL (for production use instead of SQLite)
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: forex-bot-postgres
+  #   environment:
+  #     - POSTGRES_DB=forex_bot
+  #     - POSTGRES_USER=${DB_USER:-admin}
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD:-secure_password}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - forex-bot-network
+  #   restart: unless-stopped
+
+  # Optional: Redis (for caching)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: forex-bot-redis
+  #   command: redis-server --appendonly yes
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - forex-bot-network
+  #   restart: unless-stopped
+
+networks:
+  forex-bot-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

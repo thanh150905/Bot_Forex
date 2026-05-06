@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cổng khách hàng Forex Bot</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">FX</div>
+        <div>
+          <div class="brand-name">Forex Bot</div>
+          <div class="brand-subtitle">Cổng khách hàng</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="overview">Tổng quan</button>
+        <button class="nav-item" data-view="accounts">Tài khoản MT5</button>
+        <button class="nav-item" data-view="trades">Lệnh giao dịch</button>
+        <button class="nav-item" data-view="notifications">Thông báo</button>
+        <button class="nav-item" data-view="profile">Hồ sơ</button>
+        <button class="nav-item" data-view="sessions">Phiên bot</button>
+      </nav>
+
+      <div class="server-card">
+        <span class="status-dot" id="portalStatusDot"></span>
+        <div>
+          <div class="muted">Trạng thái</div>
+          <div id="portalStatus">Chưa đăng nhập</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Tổng quan</h1>
+          <p id="pageSubtitle">Theo dõi bot và lệnh giao dịch của bạn.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="button ghost" id="refreshBtn" type="button">Làm mới</button>
+          <button class="button danger hidden" id="logoutBtn" type="button">Đăng xuất</button>
+        </div>
+      </header>
+
+      <section class="login-panel" id="loginPanel">
+        <div class="login-box auth-box" id="authBox">
+          <div>
+            <h2 id="authTitle">Đăng nhập khách hàng</h2>
+            <p id="authSubtitle">Đăng nhập bằng email và mật khẩu đã đăng ký.</p>
+          </div>
+
+          <div class="auth-tabs" role="tablist" aria-label="User authentication">
+            <button class="auth-tab active" data-auth-mode="login" type="button">Đăng nhập</button>
+            <button class="auth-tab" data-auth-mode="register" type="button">Đăng ký</button>
+          </div>
+
+          <form class="auth-form" id="userLoginForm">
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Mật khẩu
+              <input name="password" type="password" autocomplete="current-password" required>
+            </label>
+            <button class="button primary" type="submit">Đăng nhập</button>
+            <button class="link-button" id="forgotPasswordBtn" type="button">Quên mật khẩu?</button>
+            <div class="form-message" id="userLoginMessage"></div>
+          </form>
+
+          <form class="auth-form hidden" id="userRegisterForm">
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <label>
+              Mật khẩu
+              <input name="password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <label>
+              Nhập lại mật khẩu
+              <input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <button class="button primary" type="submit">Gửi mã đăng ký</button>
+            <div class="form-message" id="userRegisterMessage"></div>
+          </form>
+
+          <form class="auth-form hidden" id="userRegisterVerifyForm">
+            <label>
+              Mã xác thực
+              <input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" required>
+            </label>
+            <div class="form-actions">
+              <button class="button primary" type="submit">Xác thực và vào web</button>
+              <button class="button ghost" data-auth-mode="register" type="button">Nhập lại</button>
+            </div>
+            <div class="form-message" id="userRegisterVerifyMessage"></div>
+          </form>
+
+          <form class="auth-form hidden" id="forgotPasswordForm">
+            <label>
+              Email
+              <input name="email" type="email" autocomplete="email" required>
+            </label>
+            <div class="form-actions">
+              <button class="button primary" type="submit">Gửi mã reset</button>
+              <button class="button ghost" data-auth-mode="login" type="button">Quay lại</button>
+            </div>
+            <div class="form-message" id="forgotPasswordMessage"></div>
+          </form>
+
+          <form class="auth-form hidden" id="resetPasswordForm">
+            <label>
+              Mã reset
+              <input name="code" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code" required>
+            </label>
+            <label>
+              Mật khẩu mới
+              <input name="new_password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <label>
+              Nhập lại mật khẩu mới
+              <input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required>
+            </label>
+            <div class="form-actions">
+              <button class="button primary" type="submit">Đặt lại mật khẩu</button>
+              <button class="button ghost" data-auth-mode="login" type="button">Quay lại</button>
+            </div>
+            <div class="form-message" id="resetPasswordMessage"></div>
+          </form>
+        </div>
+      </section>
+
+      <section class="content hidden" id="content">
+        <section class="view" id="view-overview">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Bot</span>
+              <strong id="botState">-</strong>
+              <span id="botSeen">-</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Tài khoản MT5</span>
+              <strong id="accountCount">0</strong>
+              <span id="accountMode">-</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lệnh đang mở</span>
+              <strong id="openTrades">0</strong>
+              <span id="totalTrades">0 tổng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">P/L đã đóng</span>
+              <strong id="closedProfit">$0.00</strong>
+              <span id="closedTrades">0 đã đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">P/L hôm nay</span>
+              <strong id="todayProfit">$0.00</strong>
+              <span>theo ngày máy chủ</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Command</span>
+              <strong id="pendingCommands">0</strong>
+              <span>đang chờ xử lý</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Win rate</span>
+              <strong id="winRate">0%</strong>
+              <span id="winRateDetail">0 thắng / 0 đóng</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Profit factor</span>
+              <strong id="profitFactor">-</strong>
+              <span id="grossProfitLoss">$0 / $0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Tổng lot</span>
+              <strong id="totalLot">0.00</strong>
+              <span id="openLot">0.00 đang mở</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Pips đã đóng</span>
+              <strong id="closedPips">0.0</strong>
+              <span id="latestTrade">Chưa có lệnh</span>
+            </div>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Lý do bot chưa vào lệnh</h2>
+              <span class="badge" id="runtimeStatusCount">0</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Symbol</th>
+                    <th>Tín hiệu</th>
+                    <th>Lý do realtime</th>
+                    <th>Spread</th>
+                    <th>Positions</th>
+                    <th>Chế độ</th>
+                    <th>Cập nhật</th>
+                  </tr>
+                </thead>
+                <tbody id="runtimeStatusTable"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>License</h2>
+                <span class="badge" id="licenseOnlineBadge">-</span>
+              </div>
+              <div class="server-info" id="licenseInfo"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Command gần đây</h2>
+                <span class="badge" id="commandsCount">0</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Hành động</th>
+                      <th>Trạng thái</th>
+                      <th>Kết quả</th>
+                      <th>Tạo lúc</th>
+                    </tr>
+                  </thead>
+                  <tbody id="commandsTable"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Hiệu suất theo symbol</h2>
+                <span class="badge" id="symbolStatsCount">0</span>
+              </div>
+              <div class="metric-list" id="symbolStatsList"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Hoạt động mới</h2>
+                <span class="badge" id="activityCount">0</span>
+              </div>
+              <div class="activity-list" id="activityList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-accounts">
+          <section class="panel">
+            <div class="panel-header">
+              <h2 id="userMt5FormTitle">Thiết lập tài khoản MT5</h2>
+              <span class="badge">User tự chạy</span>
+            </div>
+            <form class="form-grid" id="mt5AccountForm">
+              <label>
+                Tên hiển thị
+                <input name="label" autocomplete="off" placeholder="Tài khoản chính">
+              </label>
+              <label>
+                Broker
+                <input name="broker" autocomplete="off" placeholder="Exness">
+              </label>
+              <label>
+                MT5 login
+                <input name="mt_login" inputmode="numeric" autocomplete="off" required>
+              </label>
+              <label>
+                MT5 server
+                <input name="mt_server" autocomplete="off" placeholder="Exness-MT5Trial14" required>
+              </label>
+              <label>
+                Mật khẩu MT5
+                <input name="mt_password" type="password" autocomplete="current-password" required>
+              </label>
+              <label>
+                Symbol mode
+                <select name="symbol_mode" id="userSymbolMode">
+                  <option value="XAU">XAU</option>
+                  <option value="ETH">ETH</option>
+                  <option value="BTC">BTC</option>
+                  <option value="CRYPTO">CRYPTO</option>
+                  <option value="ALL">ALL</option>
+                  <option value="CUSTOM">CUSTOM</option>
+                </select>
+              </label>
+              <label>
+                Custom symbols
+                <input name="symbols" autocomplete="off" placeholder="XAUUSDm,EURUSDm">
+              </label>
+              <label>
+                Timeframe
+                <select name="timeframe">
+                  <option value="M1">M1</option>
+                  <option value="M5">M5</option>
+                  <option value="M15">M15</option>
+                  <option value="M30">M30</option>
+                  <option value="H1">H1</option>
+                </select>
+              </label>
+              <label>
+                Base lot
+                <input name="lot_size" type="number" min="0.01" step="0.01" value="0.01" required>
+              </label>
+              <label>
+                Max lệnh / symbol
+                <input name="max_positions" type="number" min="1" step="1" value="10" required>
+              </label>
+              <label>
+                Max tổng lệnh
+                <input name="max_total_positions" type="number" min="1" step="1" value="10" required>
+              </label>
+              <label>
+                Chế độ chạy
+                <select name="dry_run">
+                  <option value="true">Dry run</option>
+                  <option value="false">Live thật</option>
+                </select>
+              </label>
+              <label class="wide">
+                Ghi chú
+                <input name="note" autocomplete="off" placeholder="Thông tin VPS/broker hoặc yêu cầu riêng">
+              </label>
+              <div class="form-actions wide">
+                <button class="button primary" id="userMt5SubmitBtn" type="submit">Lưu và bật chạy</button>
+                <button class="button ghost" id="userMt5ResetBtn" type="button">Xóa form</button>
+              </div>
+            </form>
+            <div class="form-message" id="mt5FormMessage"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Tài khoản MT5</h2>
+              <span class="badge" id="accountsCount">0</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tên</th>
+                    <th>MT5</th>
+                    <th>Symbol</th>
+                    <th>Lot</th>
+                    <th>Trạng thái</th>
+                    <th>Cập nhật</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="accountsTable"></tbody>
+              </table>
+            </div>
+            <div class="form-message" id="accountMessage"></div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-trades">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Lệnh giao dịch</h2>
+              <span class="badge" id="tradesCount">0</span>
+            </div>
+            <div class="toolbar trade-toolbar">
+              <input id="tradesFilter" placeholder="Lọc theo ticket, symbol, ghi chú">
+              <select id="tradeStatusFilter">
+                <option value="">Tất cả trạng thái</option>
+                <option value="open">Đang mở</option>
+                <option value="closed">Đã đóng</option>
+                <option value="cancelled">Đã hủy</option>
+              </select>
+              <select id="tradeSideFilter">
+                <option value="">Tất cả chiều</option>
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mã lệnh</th>
+                    <th>Symbol</th>
+                    <th>Chiều</th>
+                    <th>Trạng thái</th>
+                    <th>Giá vào</th>
+                    <th>SL / TP</th>
+                    <th>P/L</th>
+                    <th>Mở lúc</th>
+                    <th>Ghi chú</th>
+                  </tr>
+                </thead>
+                <tbody id="tradesTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-notifications">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Thông báo động</h2>
+              <span class="badge" id="notificationsCount">0</span>
+            </div>
+            <div class="activity-list roomy" id="notificationsList"></div>
+          </section>
+        </section>
+
+        <section class="view hidden" id="view-profile">
+          <div class="split-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Hồ sơ</h2>
+                <span class="badge" id="profileStatus">-</span>
+              </div>
+              <div class="server-info" id="profileInfo"></div>
+              <form class="form-grid" id="profileForm">
+                <label>
+                  Tên hiển thị
+                  <input name="username" autocomplete="name" required>
+                </label>
+                <label class="wide">
+                  Ghi chú
+                  <input name="note" autocomplete="off" placeholder="Nhu cầu bot, broker, VPS...">
+                </label>
+                <div class="form-actions wide">
+                  <button class="button primary" type="submit">Lưu hồ sơ</button>
+                </div>
+              </form>
+              <div class="form-message" id="profileMessage"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2>Đổi mật khẩu</h2>
+                <span class="badge">Bảo mật</span>
+              </div>
+              <form class="form-grid" id="changePasswordForm">
+                <label class="wide">
+                  Mật khẩu hiện tại
+                  <input name="old_password" type="password" autocomplete="current-password" required>
+                </label>
+                <label>
+                  Mật khẩu mới
+                  <input name="new_password" type="password" autocomplete="new-password" minlength="8" required>
+                </label>
+                <label>
+                  Nhập lại mật khẩu mới
+                  <input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required>
+                </label>
+                <div class="form-actions wide">
+                  <button class="button primary" type="submit">Đổi mật khẩu</button>
+                </div>
+              </form>
+              <div class="form-message" id="passwordMessage"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view hidden" id="view-sessions">
+          <section class="panel">
+            <div class="panel-header">
+              <h2>Phiên bot</h2>
+              <span class="badge" id="sessionsCount">0</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Thời gian</th>
+                    <th>Hành động</th>
+                    <th>IP</th>
+                    <th>MT Account</th>
+                    <th>Lý do</th>
+                  </tr>
+                </thead>
+                <tbody id="sessionsTable"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+  <script src="/static/user_app.js"></script>
+</body>
+</html>

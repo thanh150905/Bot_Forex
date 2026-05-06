@@ -1,0 +1,19 @@
+{
+  "build": {
+    "builder": "dockerfile"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "restartPolicyMaxRetries": 3,
+    "restartPolicyWindowMs": 60000,
+    "startCommand": "python main.py",
+    "sleepApplication": false,
+    "registryCredentials": null,
+    "dockerfile": "Dockerfile",
+    "nixpacks": {
+      "providers": [
+        "python"
+      ]
+    }
+  }
+}

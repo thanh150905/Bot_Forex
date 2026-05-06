@@ -1,0 +1,50 @@
+app = "forex-bot-api"
+primary_region = "sgp"
+
+[build]
+  image = "forex-bot:latest"
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  SECRET_KEY = "change_me_to_64_char_random_string"
+  ADMIN_USERNAME = "admin"
+  ADMIN_PASSWORD = "change_me_to_strong_password"
+  DATABASE_URL = "sqlite+aiosqlite:///./forex_license.db"
+  SMTP_HOST = "smtp.gmail.com"
+  SMTP_PORT = "587"
+  FRONTEND_URL = "https://forex-bot-api.fly.dev"
+
+[processes]
+  api = "python main.py"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_start_machines = true
+  auto_stop_machines = true
+  min_machines_running = 1
+
+[[http_service.checks]]
+  grace_period = "5s"
+  interval = "30s"
+  method = "GET"
+  path = "/health"
+  protocol = "http"
+  timeout = "10s"
+
+[[statics]]
+  guest_path = "/app/static"
+  url_prefix = "/static"
+
+[vm]
+  memory = "512mb"
+  cpus = 1
+  cpu_kind = "shared"
+
+[[regions]]
+  code = "sgp"
+
+[[mounts]]
+  source = "forex_data"
+  destination = "/app/data"
